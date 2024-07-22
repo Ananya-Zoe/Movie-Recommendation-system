@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body onload="init()">
+    <nav class="navbar text-white navbar-dark bg-dark">
+        <a href="#" class="navbar-brand">Login</a>
+    </nav>
+    <p></p>
+    <div class="container text-center bordered" style="width:280px">
+        <form id="loginForm" action="/login" method="post" enctype="multipart/form-data">
+            <video width=250 height=250 id="video" autoplay></video>
+            <input type="hidden" accept="image/jpeg" name="current_image" id="current_image">
+        </form>
+    </div>
+    <canvas id="myCanvas" width="400" height="350" hidden></canvas>
+</body>
+<script>
+    navigator.getUserMedia = (navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia);
+
+    var video;
+    var webcamStream;
+    var canvas, ctx;
+
+    function init() {
+        canvas = document.getElementById("myCanvas");
+        ctx = canvas.getContext('2d');
+        startVideo();
+    }
+
+    function startVideo() {
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia(
+                {
+                    video: true,
+                    audio: false
+                },
+                function(localMediaStream) {
+                    video = document.getElementById('video');
+                    video.srcObject = localMediaStream;
+                    webcamStream = localMediaStream;
+
+                    // Automatically capture and submit the form after video starts playing
+                    video.onplaying = function() {
+                        setTimeout(submitForm, 3000); // Adjust the timeout as needed
+                    };
+                },
+                function(err) {
+                    console.log("The following error occurred: " + err);
+                }
+            );
+        } else {
+            console.log("getUserMedia not supported");
+        }
+    }
+
+    function submitForm() {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        var dataURL = canvas.toDataURL('image/jpeg');
+        document.getElementById("current_image").value = dataURL;
+        $("#loginForm").submit();
+    }
+</script>
+</html>
